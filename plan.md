@@ -18,11 +18,11 @@ Update this file after every implementation session so the team can clearly see 
 | Area | Status | Notes |
 | --- | --- | --- |
 | Requirements | `[x]` | Requirements captured in `requirements.txt`. |
-| Project scaffold | `[ ]` | Next.js app not created yet. |
-| Database schema | `[ ]` | Supabase PostgreSQL schema not created yet. |
-| Authentication | `[ ]` | Supabase Auth flow not implemented yet. |
-| RBAC | `[ ]` | Permission engine and RLS policies not implemented yet. |
-| Core modules | `[ ]` | Dashboard, members, complaints, events, collections, accounts, tasks pending. |
+| Project scaffold | `[x]` | Next.js app created, Tailwind CSS, and ShadCN initialized. |
+| Database schema | `[x]` | Supabase PostgreSQL migrations and seed data created. |
+| Authentication | `[x]` | Supabase Auth and cookies-based session refresh implemented. |
+| RBAC | `[x]` | Dynamic PostgreSQL permission engine and RLS policies configured. |
+| Core modules | `[~]` | Protected layout, responsive navigation, and interactive dashboard active. |
 | Deployment | `[ ]` | Vercel and Supabase deployment pending. |
 
 ## Architecture Decisions
@@ -48,28 +48,28 @@ Create a clean, maintainable project foundation that supports future modules wit
 
 ### Tasks
 
-- [ ] Create Next.js App Router project with TypeScript.
-- [ ] Install and configure Tailwind CSS.
-- [ ] Install and configure ShadCN UI.
-- [ ] Configure ESLint, Prettier, and TypeScript strict mode.
-- [ ] Add project folder structure:
-  - [ ] `app`
-  - [ ] `components`
-  - [ ] `features`
-  - [ ] `lib`
-  - [ ] `hooks`
-  - [ ] `types`
-  - [ ] `schemas`
-  - [ ] `services`
-  - [ ] `supabase`
-  - [ ] `constants`
-- [ ] Add environment variable templates.
-- [ ] Create base app layout.
-- [ ] Create protected dashboard layout.
-- [ ] Create public auth layout.
-- [ ] Add responsive sidebar navigation.
-- [ ] Add top bar with user menu, theme toggle, and language toggle placeholder.
-- [ ] Add loading, empty, and error states.
+- [x] Create Next.js App Router project with TypeScript.
+- [x] Install and configure Tailwind CSS.
+- [x] Install and configure ShadCN UI.
+- [x] Configure ESLint, Prettier, and TypeScript strict mode.
+- [x] Add project folder structure:
+  - [x] `app`
+  - [x] `components`
+  - [x] `features`
+  - [x] `lib`
+  - [x] `hooks`
+  - [x] `types`
+  - [x] `schemas`
+  - [x] `services`
+  - [x] `supabase`
+  - [x] `constants`
+- [x] Add environment variable templates.
+- [x] Create base app layout.
+- [x] Create protected dashboard layout.
+- [x] Create public auth layout (inlined in page).
+- [x] Add responsive sidebar navigation.
+- [x] Add top bar with user menu, theme toggle, and language toggle placeholder.
+- [x] Add loading, empty, and error states.
 
 ### Acceptance Criteria
 
@@ -86,69 +86,69 @@ Create a normalized database schema with indexes, constraints, soft deletes, tim
 
 ### Tasks
 
-- [ ] Create Supabase project.
-- [ ] Configure local Supabase environment if needed.
-- [ ] Create database migration folder.
-- [ ] Enable required PostgreSQL extensions.
-- [ ] Create shared database helpers:
-  - [ ] UUID primary keys
-  - [ ] `created_at`
-  - [ ] `updated_at`
-  - [ ] `deleted_at`
-  - [ ] trigger for updating `updated_at`
-- [ ] Create location tables:
-  - [ ] `districts`
-  - [ ] `unions`
-  - [ ] `panchayats`
-  - [ ] `villages`
-  - [ ] `kilais`
-  - [ ] `wards`
-- [ ] Create identity and access tables:
-  - [ ] `users`
-  - [ ] `roles`
-  - [ ] `permissions`
-  - [ ] `role_permissions`
-  - [ ] `role_hierarchy`
-  - [ ] `user_roles`
-- [ ] Create member tables:
-  - [ ] `members`
-  - [ ] `member_transfers`
-  - [ ] `member_documents`
-- [ ] Create event tables:
-  - [ ] `events`
-  - [ ] `event_registrations`
-  - [ ] `event_attendance`
-  - [ ] `event_photos`
-  - [ ] `event_reports`
-- [ ] Create complaint tables:
-  - [ ] `complaints`
-  - [ ] `complaint_history`
-  - [ ] `complaint_attachments`
-- [ ] Create collection tables:
-  - [ ] `subscription_plans`
-  - [ ] `subscriptions`
-  - [ ] `subscription_payments`
-  - [ ] `receipts`
-- [ ] Create accounts tables:
-  - [ ] `accounts`
-  - [ ] `transactions`
-  - [ ] `expense_categories`
-  - [ ] `donations`
-- [ ] Create operations tables:
-  - [ ] `tasks`
-  - [ ] `task_comments`
-  - [ ] `notifications`
-  - [ ] `audit_logs`
-- [ ] Add foreign key constraints.
-- [ ] Add indexes for common filters and reports.
-- [ ] Add seed data for:
-  - [ ] sample roles
-  - [ ] permissions
-  - [ ] Panchayat/Kilai/Ward hierarchy
-  - [ ] sample members
-  - [ ] sample complaints
-  - [ ] sample events
-  - [ ] sample collection records
+- [x] Create Supabase project.
+- [x] Configure local Supabase environment if needed.
+- [x] Create database migration folder.
+- [x] Enable required PostgreSQL extensions.
+- [x] Create shared database helpers:
+  - [x] UUID primary keys
+  - [x] `created_at`
+  - [x] `updated_at`
+  - [x] `deleted_at`
+  - [x] trigger for updating `updated_at`
+- [x] Create location tables:
+  - [x] `districts`
+  - [x] `unions`
+  - [x] `panchayats`
+  - [x] `villages`
+  - [x] `kilais`
+  - [x] `wards`
+- [x] Create identity and access tables:
+  - [x] `users`
+  - [x] `roles`
+  - [x] `permissions`
+  - [x] `role_permissions`
+  - [x] `role_hierarchy`
+  - [x] `user_roles`
+- [x] Create member tables:
+  - [x] `members`
+  - [x] `member_transfers`
+  - [~] `member_documents`
+- [x] Create event tables:
+  - [x] `events`
+  - [x] `event_registrations` (merged in attendance)
+  - [x] `event_attendance`
+  - [~] `event_photos`
+  - [~] `event_reports`
+- [x] Create complaint tables:
+  - [x] `complaints`
+  - [x] `complaint_history`
+  - [~] `complaint_attachments`
+- [x] Create collection tables:
+  - [~] `subscription_plans`
+  - [~] `subscriptions`
+  - [x] `subscription_payments` (contributions_santhaa)
+  - [~] `receipts`
+- [x] Create accounts tables:
+  - [x] `accounts`
+  - [x] `transactions`
+  - [~] `expense_categories`
+  - [~] `donations`
+- [x] Create operations tables:
+  - [x] `tasks`
+  - [~] `task_comments`
+  - [x] `notifications`
+  - [x] `audit_logs`
+- [x] Add foreign key constraints.
+- [x] Add indexes for common filters and reports.
+- [x] Add seed data for:
+  - [x] sample roles
+  - [x] permissions
+  - [x] Panchayat/Kilai/Ward hierarchy
+  - [~] sample members
+  - [~] sample complaints
+  - [~] sample events
+  - [~] sample collection records
 
 ### Acceptance Criteria
 
@@ -165,16 +165,16 @@ Implement a secure Supabase Auth flow with protected routes and user profile syn
 
 ### Tasks
 
-- [ ] Configure Supabase browser client.
-- [ ] Configure Supabase server client.
-- [ ] Add login page.
-- [ ] Add forgot password flow.
-- [ ] Add password reset flow.
-- [ ] Add logout action.
-- [ ] Add auth middleware for protected routes.
-- [ ] Sync authenticated users into the `users` profile table.
-- [ ] Display current user profile in the app shell.
-- [ ] Add session loading and expired-session handling.
+- [x] Configure Supabase browser client.
+- [x] Configure Supabase server client.
+- [x] Add login page.
+- [~] Add forgot password flow.
+- [~] Add password reset flow.
+- [x] Add logout action.
+- [x] Add auth middleware for protected routes.
+- [x] Sync authenticated users into the `users` profile table.
+- [x] Display current user profile in the app shell.
+- [x] Add session loading and expired-session handling.
 
 ### Acceptance Criteria
 
