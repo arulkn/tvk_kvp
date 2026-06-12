@@ -31,17 +31,20 @@ export default async function SettingsPage() {
   // Fetch the default Kavaraipettai Panchayat ID
   const { data: panchayat } = await supabase
     .from('panchayats')
-    .select('id')
+    .select('id, default_santhaa_amount')
     .eq('name', 'Kavaraipettai')
     .maybeSingle()
 
   let panchayatId = panchayat?.id
+  let defaultSanthaaAmount = panchayat?.default_santhaa_amount ? Number(panchayat.default_santhaa_amount) : 100
+
   if (!panchayatId) {
     const { data: allPanc } = await supabase
       .from('panchayats')
-      .select('id')
+      .select('id, default_santhaa_amount')
       .limit(1)
     panchayatId = allPanc?.[0]?.id || ''
+    defaultSanthaaAmount = allPanc?.[0]?.default_santhaa_amount ? Number(allPanc[0].default_santhaa_amount) : 100
   }
 
   return (
@@ -52,6 +55,7 @@ export default async function SettingsPage() {
         kilais={kilais || []}
         wards={wards || []}
         panchayatId={panchayatId}
+        defaultSanthaaAmount={defaultSanthaaAmount}
       />
     </div>
   )

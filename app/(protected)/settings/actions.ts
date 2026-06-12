@@ -12,6 +12,7 @@ function refreshSettingsPaths() {
   revalidatePath('/members')
   revalidatePath('/members/new')
   revalidatePath('/dashboard')
+  revalidatePath('/collections')
 }
 
 export async function addRole(data: {
@@ -294,6 +295,35 @@ export async function deleteWard(id: string) {
   const supabase = await createClient()
 
   const { error } = await supabase.from('wards').delete().eq('id', id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  refreshSettingsPaths()
+  return { success: true }
+}
+
+export async function updatePanchayatSettings(
+  panchayatId: string,
+  data: {
+    defaultSanthaaAmount: number
+  }
+) {
+  const supabase = await createClient()
+
+  // Validate session
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  const { error } = await supabase
+    .from('panchayats')
+    .update({
+      default_santhaa_amount: data.defaultSanthaaAmount
+    })
+    .eq('id', panchayatId)
 
   if (error) {
     return { error: error.message }

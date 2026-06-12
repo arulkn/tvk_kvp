@@ -42,16 +42,18 @@ import { recordContribution } from './actions'
 interface CollectionsDashboardProps {
   members: any[]
   contributions: any[]
+  defaultSanthaaAmount?: number
 }
 
 export default function CollectionsDashboard({
   members,
   contributions,
+  defaultSanthaaAmount = 100,
 }: CollectionsDashboardProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [selectedMember, setSelectedMember] = useState('')
-  const [amount, setAmount] = useState(100) // Default monthly Santhaa is ₹100
+  const [amount, setAmount] = useState(defaultSanthaaAmount) // Default monthly Santhaa
   const [month, setMonth] = useState(() => {
     const d = new Date()
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
@@ -73,7 +75,7 @@ export default function CollectionsDashboard({
 
   // Calculate metrics
   const activeMembers = members.filter((m) => m.status === 'active')
-  const totalExpected = activeMembers.length * 100
+  const totalExpected = activeMembers.length * defaultSanthaaAmount
   const actualCollected = Object.values(paymentsMapping).reduce(
     (acc, curr) => acc + Number(curr.amount),
     0
@@ -127,7 +129,7 @@ export default function CollectionsDashboard({
         <div>
           <h1 className="text-3xl font-black text-white tracking-tight">Santhaa Collections</h1>
           <p className="text-slate-400 text-sm">
-            Monitor and record monthly cadre subscription contributions (₹100/month standard).
+            Monitor and record monthly cadre subscription contributions (₹{defaultSanthaaAmount}/month standard).
           </p>
         </div>
 

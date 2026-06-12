@@ -47,6 +47,7 @@ import {
   deleteVillage,
   deleteKilai,
   deleteWard,
+  updatePanchayatSettings,
 } from './actions'
 
 type MasterType = 'role' | 'village' | 'kilai' | 'ward'
@@ -67,6 +68,7 @@ interface SettingsTabsProps {
   kilais: any[]
   wards: any[]
   panchayatId: string
+  defaultSanthaaAmount: number
 }
 
 export default function SettingsTabs({
@@ -75,9 +77,10 @@ export default function SettingsTabs({
   kilais,
   wards,
   panchayatId,
+  defaultSanthaaAmount,
 }: SettingsTabsProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'roles' | 'locations'>('roles')
+  const [activeTab, setActiveTab] = useState<'roles' | 'locations' | 'general'>('roles')
 
   // Dialogs control
   const [roleOpen, setRoleOpen] = useState(false)
@@ -98,6 +101,9 @@ export default function SettingsTabs({
   const [wardOpen, setWardOpen] = useState(false)
   const [wardNumber, setWardNumber] = useState(1)
   const [targetKilai, setTargetKilai] = useState(kilais[0]?.id || '')
+
+  const [santhaaAmount, setSanthaaAmount] = useState(defaultSanthaaAmount)
+  const [generalSuccess, setGeneralSuccess] = useState(false)
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -250,6 +256,28 @@ export default function SettingsTabs({
       }
     } catch (err: any) {
       setError(err?.message || 'Something went wrong.')
+      setIsLoading(false)
+    }
+  }
+
+  const handleUpdateGeneralSettings = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+    setGeneralSuccess(false)
+    try {
+      const res = await updatePanchayatSettings(panchayatId, {
+        defaultSanthaaAmount: Number(santhaaAmount)
+      })
+      if (res && res.error) {
+        setError(res.error)
+      } else {
+        setGeneralSuccess(true)
+        router.refresh()
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong.')
+    } finally {
       setIsLoading(false)
     }
   }
@@ -427,6 +455,21 @@ export default function SettingsTabs({
           }`}
         >
           <MapPin className="w-4 h-4" /> Location Structure
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('general')
+            setError(null)
+            setGeneralSuccess(false)
+          }}
+          className={`px-4 py-2.5 font-bold text-sm border-b-2 transition-all flex items-center gap-2 ${
+            activeTab === 'general'
+              ? 'border-amber-500 text-white bg-slate-900/10'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <SettingsIcon className="w-4 h-4" /> General Settings
         </button>
       </div>
 
@@ -853,6 +896,55 @@ export default function SettingsTabs({
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'general' && (
+        <div className="space-y-6 max-w-xl bg-slate-900/10 border border-slate-900 p-6 rounded-2xl">
+          <h3 className="font-extrabold text-lg text-white">General Subscription Settings</h3>
+          <p className="text-xs text-slate-400">
+            Configure default collection values for monthly subscriptions (Santhaa).
+          </p>
+
+          {generalSuccess && (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3.5 rounded-lg text-sm">
+              Settings updated successfully!
+            </div>
+          )}
+
+          <form onSubmit={handleUpdateGeneralSettings} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-slate-300 font-bold text-xs uppercase">Panchayat Name</Label>
+              <Input
+                value="Kavaraipettai Panchayat"
+                className="bg-slate-950/60 border-slate-800 text-slate-500 cursor-not-allowed"
+                disabled
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-slate-300 font-bold text-xs uppercase">Default Monthly Santhaa (₹) *</Label>
+              <Input
+                type="number"
+                min={1}
+                value={santhaaAmount}
+                onChange={(e) => setSanthaaAmount(Number(e.target.value))}
+                className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                required
+              />
+              <p className="text-[10px] text-slate-500">
+                This amount will be pre-filled when recording subscriptions and used as the standard base rate to calculate outstanding dues.
+              </p>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-gradient-to-r from-red-600 to-amber-500 text-white font-bold h-9 px-4 rounded-lg hover:scale-[1.02] transition-all cursor-pointer"
+            >
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Settings'}
+            </Button>
+          </form>
         </div>
       )}
 
