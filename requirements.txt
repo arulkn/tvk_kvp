@@ -1,0 +1,491 @@
+
+
+Create a modern, production-ready web application for managing a Tamil Nadu Panchayat-level political organization and its daily operations.
+
+### Project Goal
+
+Build a responsive web application that helps local party administrators manage:
+
+* Party cadres and members
+* Panchayat activities
+* Events and meetings
+* Complaints and public grievances
+* Monthly subscription (Santhaa) collections
+* Role hierarchy and responsibilities
+* Calendar and task tracking
+* Ward/Kilai-level administration
+
+The application should be suitable for real-world usage by a local political unit in Tamil Nadu.
+
+---
+
+## Technical Requirements
+
+### Stack
+
+* Frontend: React + Next.js (App Router)
+* Backend: Supabase
+* Database: PostgreSQL (Supabase)
+* Authentication: Supabase Auth
+* Hosting: Vercel
+* UI: Tailwind CSS + ShadCN UI
+* State Management: React Query / TanStack Query
+* Forms: React Hook Form + Zod
+* Calendar: FullCalendar
+* Charts: Recharts
+* RBAC implemented both in frontend and database policies
+
+---
+
+# Core Modules
+
+## 1. Dashboard
+
+Provide role-based dashboards.
+
+Dashboard widgets:
+
+* Total Members
+* Active Members
+* Pending Complaints
+* Upcoming Events
+* Monthly Collection Status
+* Village-wise Statistics
+* Ward-wise Statistics
+* Recent Activities
+* Attendance Summary
+* Birthdays and Important Dates
+
+Visualizations:
+
+* Membership Growth
+* Collection Performance
+* Complaint Resolution Status
+* Event Participation
+
+---
+
+## 2. Organization Structure Management
+
+Support Tamil Nadu local political hierarchy.
+
+Example hierarchy:
+
+* District Secretary
+* Union Secretary
+* Panchayat Secretary
+* Town Secretary
+* Area Incharge
+* Kilai Secretary
+* Ward Secretary
+* Youth Wing Secretary
+* Women's Wing Secretary
+* Treasurer
+* Organizer
+* Volunteer
+
+System must allow:
+
+* Create custom roles
+* Edit roles
+* Disable roles
+* Assign permissions
+* Define reporting hierarchy
+
+Example:
+
+Panchayat Secretary
+├── Kilai Secretary
+│   ├── Ward Secretary
+│   └── Volunteers
+└── Treasurer
+
+The hierarchy should be configurable and not hardcoded.
+
+---
+
+## 3. Member Management
+
+Maintain complete cadre records.
+
+Member details:
+
+* Membership ID
+* Name
+* Photo
+* Mobile Number
+* Alternate Number
+* Address
+* Village
+* Panchayat
+* Ward
+* Kilai
+* Date of Birth
+* Occupation
+* Joining Date
+* Blood Group
+* Gender
+* Role
+* Status
+
+Features:
+
+* Member profile page
+* Search and filters
+* Member transfer between Kilai
+* Member activation/deactivation
+* Bulk import via Excel
+* Export to Excel/PDF
+
+---
+
+## 4. Role-Based Access Control (RBAC)
+
+Flexible permission engine.
+
+Permissions examples:
+
+Members:
+
+* Create
+* Edit
+* Delete
+* View
+
+Complaints:
+
+* Create
+* Assign
+* Resolve
+* Close
+
+Events:
+
+* Create
+* Approve
+* Manage
+
+Accounts:
+
+* View
+* Collect
+* Audit
+
+Users:
+
+* Create
+* Manage
+
+Role hierarchy management:
+
+* Define which role can manage which role
+* Define reporting relationships
+* Multi-level approval workflows
+
+Examples:
+
+* Panchayat Secretary can manage Kilai Secretaries
+* Kilai Secretary can manage Ward Secretaries
+* Ward Secretary can manage Volunteers
+
+Should be configurable from UI.
+
+---
+
+## 5. Event Management
+
+Manage all party activities.
+
+Event types:
+
+* Public Meetings
+* Booth Meetings
+* Village Meetings
+* Awareness Programs
+* Membership Drives
+* Welfare Activities
+* Blood Donation Camps
+* Annadhanam
+* Protests
+* Campaign Events
+
+Features:
+
+* Event Calendar
+* Event Registration
+* Attendance Tracking
+* Photo Uploads
+* Event Reports
+* Reminder Notifications
+
+---
+
+## 6. Calendar & Scheduling
+
+Full Panchayat activity calendar.
+
+Views:
+
+* Day
+* Week
+* Month
+
+Items:
+
+* Meetings
+* Events
+* Complaint Follow-ups
+* Collection Deadlines
+* Birthdays
+* Party Announcements
+
+Support:
+
+* Color Coding
+* Recurring Events
+* Role-specific visibility
+
+---
+
+## 7. Complaint Management
+
+Public grievance tracking system.
+
+Complaint fields:
+
+* Complaint Number
+* Citizen Name
+* Mobile Number
+* Address
+* Ward
+* Category
+* Description
+* Photos
+* Assigned To
+* Status
+* Resolution Notes
+
+Statuses:
+
+* New
+* Assigned
+* In Progress
+* Escalated
+* Resolved
+* Closed
+
+Categories:
+
+* Water Supply
+* Street Lights
+* Roads
+* Drainage
+* Garbage
+* Welfare Scheme
+* Electricity
+* Public Infrastructure
+* Other
+
+Features:
+
+* Complaint timeline
+* Escalation workflow
+* Resolution tracking
+* Complaint analytics
+
+---
+
+## 8. Monthly Santhaa Collection
+
+Track cadre contributions.
+
+Features:
+
+* Monthly contribution setup
+* Collection tracking
+* Pending dues
+* Payment history
+* Receipt generation
+* Member-wise reports
+* Village-wise reports
+* Ward-wise reports
+
+Fields:
+
+* Member
+* Amount
+* Month
+* Payment Date
+* Collector
+* Remarks
+
+Dashboard:
+
+* Collection percentage
+* Outstanding dues
+* Monthly trends
+
+---
+
+## 9. Accounts & Finance
+
+Basic accounting system.
+
+Track:
+
+* Income
+* Expenses
+* Donations
+* Santhaa Collections
+
+Expense Categories:
+
+* Event Expenses
+* Welfare Activities
+* Office Expenses
+* Printing
+* Campaign Materials
+* Miscellaneous
+
+Reports:
+
+* Monthly Statement
+* Cash Book
+* Category Reports
+* Treasurer Dashboard
+
+---
+
+## 10. Task Management
+
+Assign responsibilities.
+
+Tasks can be assigned to:
+
+* Kilai Secretary
+* Ward Secretary
+* Volunteers
+
+Fields:
+
+* Title
+* Description
+* Assigned By
+* Assigned To
+* Due Date
+* Priority
+* Status
+
+---
+
+## 11. Notifications
+
+In-app notifications for:
+
+* New Complaint
+* Event Reminder
+* Task Assignment
+* Pending Collection
+* Member Approval
+
+---
+
+## 12. Audit Trail
+
+Track every action.
+
+Log:
+
+* User
+* Action
+* Module
+* Timestamp
+* Old Value
+* New Value
+
+Required for accountability.
+
+---
+
+# Database Design
+
+Design normalized PostgreSQL schema with:
+
+* users
+* roles
+* permissions
+* role_permissions
+* role_hierarchy
+* members
+* villages
+* panchayats
+* kilais
+* wards
+* events
+* event_attendance
+* complaints
+* complaint_history
+* subscriptions
+* subscription_payments
+* accounts
+* transactions
+* tasks
+* notifications
+* audit_logs
+
+Use UUID primary keys.
+
+Include:
+
+* Foreign key constraints
+* Indexes
+* Soft deletes
+* Created/Updated timestamps
+
+---
+
+# UI Requirements
+
+Theme:
+
+* Clean government/community management style
+* Mobile-first design
+* Tamil and English support
+* Dark mode support
+
+Navigation:
+
+* Dashboard
+* Members
+* Organization
+* Events
+* Calendar
+* Complaints
+* Collections
+* Accounts
+* Tasks
+* Reports
+* Settings
+
+---
+
+# Deliverables
+
+Generate:
+
+1. Complete Next.js project structure
+2. Supabase database schema
+3. Row Level Security policies
+4. Authentication flow
+5. RBAC implementation
+6. Responsive UI
+7. Reusable components
+8. API/service layer
+9. Sample seed data
+10. Vercel deployment configuration
+11. Supabase integration
+12. Production-ready folder structure
+13. TypeScript throughout
+14. Clean architecture and scalability best practices
+
+The application should feel like a dedicated Panchayat Political Organization Management System rather than a generic CRM, using familiar Tamil Nadu administrative terms such as Panchayat, Kilai, Ward, Union, Secretary, Treasurer, Organizer, and Volunteer.
