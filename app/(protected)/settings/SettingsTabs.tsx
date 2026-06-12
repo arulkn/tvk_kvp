@@ -12,9 +12,11 @@ import {
   Hash,
   ArrowRight,
   Pencil,
-  Trash2
+  Trash2,
+  User as UserIcon
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -48,6 +50,7 @@ import {
   deleteKilai,
   deleteWard,
   updatePanchayatSettings,
+  updateUserRole,
 } from './actions'
 
 type MasterType = 'role' | 'village' | 'kilai' | 'ward'
@@ -69,6 +72,7 @@ interface SettingsTabsProps {
   wards: any[]
   panchayatId: string
   defaultSanthaaAmount: number
+  portalUsers: any[]
 }
 
 export default function SettingsTabs({
@@ -78,9 +82,10 @@ export default function SettingsTabs({
   wards,
   panchayatId,
   defaultSanthaaAmount,
+  portalUsers,
 }: SettingsTabsProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'roles' | 'locations' | 'general'>('roles')
+  const [activeTab, setActiveTab] = useState<'roles' | 'locations' | 'general' | 'users'>('roles')
 
   // Dialogs control
   const [roleOpen, setRoleOpen] = useState(false)
@@ -282,6 +287,23 @@ export default function SettingsTabs({
     }
   }
 
+  const handleUpdateUserRole = async (userId: string, roleId: string) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await updateUserRole(userId, roleId)
+      if (res && res.error) {
+        setError(res.error)
+      } else {
+        router.refresh()
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editTarget) return
@@ -470,6 +492,20 @@ export default function SettingsTabs({
           }`}
         >
           <SettingsIcon className="w-4 h-4" /> General Settings
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('users')
+            setError(null)
+          }}
+          className={`px-4 py-2.5 font-bold text-sm border-b-2 transition-all flex items-center gap-2 ${
+            activeTab === 'users'
+              ? 'border-amber-500 text-white bg-slate-900/10'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <UserIcon className="w-4 h-4" /> Users & Roles
         </button>
       </div>
 
@@ -945,6 +981,72 @@ export default function SettingsTabs({
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Settings'}
             </Button>
           </form>
+        </div>
+      )}
+
+      {activeTab === 'users' && (
+        <div className="space-y-6 max-w-4xl">
+          <div>
+            <h3 className="font-extrabold text-lg text-white">Portal User Accounts</h3>
+            <p className="text-xs text-slate-400">
+              Manage portal permissions by assigning administrative roles to registered accounts.
+            </p>
+          </div>
+
+          <div className="border border-slate-900 bg-slate-900/10 rounded-xl overflow-hidden">
+            <Table>
+              <TableHeader className="bg-slate-950/50 border-b border-slate-900">
+                <TableRow className="hover:bg-transparent border-slate-900">
+                  <TableHead className="text-slate-400 font-bold uppercase tracking-wider text-xs">Email / Name</TableHead>
+                  <TableHead className="text-slate-400 font-bold uppercase tracking-wider text-xs">Active Role</TableHead>
+                  <TableHead className="text-slate-400 font-bold uppercase tracking-wider text-xs">Assign New Role</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {portalUsers.map((pUser) => {
+                  const currentRoleId = pUser.user_roles?.[0]?.role_id || '';
+                  const roleName = pUser.user_roles?.[0]?.roles?.name || 'Volunteer';
+                  const roleCode = pUser.user_roles?.[0]?.roles?.code || 'volunteer';
+                  
+                  return (
+                    <TableRow key={pUser.id} className="hover:bg-slate-900/30 border-slate-900/50">
+                      <TableCell className="font-semibold text-white py-4">
+                        <div>
+                          <p className="text-sm">{pUser.full_name || 'Portal User'}</p>
+                          <p className="text-xs text-slate-500 font-normal">{pUser.email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <span className={cn(
+                          "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                          roleCode === 'super_admin' ? "bg-red-500/10 text-red-400 border-red-500/20" :
+                          roleCode === 'treasurer' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                          "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                        )}>
+                          {roleName}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <select
+                          disabled={isLoading}
+                          value={currentRoleId}
+                          onChange={(e) => handleUpdateUserRole(pUser.id, e.target.value)}
+                          className="h-8 px-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 text-xs focus:border-amber-500 focus:outline-none disabled:opacity-50"
+                        >
+                          <option value="">-- No Role / Inactive --</option>
+                          {roles.map((r) => (
+                            <option key={r.id} value={r.id}>
+                              {r.name}
+                            </option>
+                          ))}
+                        </select>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
 

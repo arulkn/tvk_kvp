@@ -47,6 +47,12 @@ export default async function SettingsPage() {
     defaultSanthaaAmount = allPanc?.[0]?.default_santhaa_amount ? Number(allPanc[0].default_santhaa_amount) : 100
   }
 
+  // Fetch all portal user accounts with their associated roles
+  const { data: portalUsers = [] } = await supabase
+    .from('users')
+    .select('*, user_roles(role_id, roles(code, name, name_ta))')
+    .order('email', { ascending: true })
+
   return (
     <div className="p-6">
       <SettingsTabs
@@ -56,6 +62,7 @@ export default async function SettingsPage() {
         wards={wards || []}
         panchayatId={panchayatId}
         defaultSanthaaAmount={defaultSanthaaAmount}
+        portalUsers={portalUsers || []}
       />
     </div>
   )

@@ -332,3 +332,45 @@ export async function updatePanchayatSettings(
   refreshSettingsPaths()
   return { success: true }
 }
+
+export async function updateUserRole(userId: string, roleId: string) {
+  const supabase = await createClient()
+
+  // Validate session
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  // Verify caller is super admin
+  const { data: callerRole } = await supabase
+    .from('user_roles')
+    .select('roles(code)')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const callerRoleCode = (callerRole as any)?.roles?.code
+  if (callerRoleCode !== 'super_admin') {
+    return { error: 'Unauthorized: Only super administrators can modify portal roles.' }
+  }
+
+  // Prevent lockout: caller cannot modify their own role
+  if (userId === user.id) {
+    return { error: 'You cannot modify your own role to prevent system lockout.' }
+  }
+
+  // Delete all existing roles for this user
+  await supabase.from('user_roles').delete().eq('user_id', userId)
+
+  // Insert the new role
+  const { error } = await supabase
+    .from('user_roles')
+    .insert({ user_id: userId, role_id: roleId })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  refreshSettingsPaths()
+  return { success: true }
+}
