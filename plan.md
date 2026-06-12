@@ -19,7 +19,7 @@ Update this file after every implementation session so the team can clearly see 
 | --- | --- | --- |
 | Requirements | `[x]` | Requirements captured in `requirements.txt`. |
 | Project scaffold | `[x]` | Next.js app created, Tailwind CSS, and ShadCN initialized. |
-| Database schema | `[x]` | Supabase PostgreSQL migrations and seed data created. |
+| Database schema | `[~]` | Supabase PostgreSQL migrations and seed data created; follow-up schema update migration added. Hosted Supabase apply is pending database credentials or SQL Editor execution. |
 | Authentication | `[x]` | Supabase Auth and cookies-based session refresh implemented. |
 | RBAC | `[x]` | Dynamic PostgreSQL permission engine and RLS policies configured. |
 | Core modules | `[~]` | Protected layout, responsive navigation, and interactive dashboard active. |
@@ -767,3 +767,6 @@ Use this section to track progress over time.
 | Date | Work Completed | Pending / Blockers |
 | --- | --- | --- |
 | 2026-06-12 | Created project plan from requirements. | Implementation not started. |
+| 2026-06-12 | Audited app code against Supabase schema and added migration `20260612000003_schema_updates.sql` for missing project tables, location RLS, collection flow policies, event support tables, task comments, receipts, donations, and finance categories. | Hosted Supabase migration apply is pending database credentials or manual SQL Editor execution. |
+| 2026-06-12 | Added edit and delete actions/UI for settings master data: roles, villages, kilais, and wards. | Hosted Supabase must include location/role management RLS policies for these writes to succeed. |
+| 2026-06-12 | Updated dashboard to remove demo fallback data and retrieve live Supabase counts, current-month Santhaa collection, upcoming events, and administrative scope data. | Dashboard accuracy depends on deployed RLS policies allowing the signed-in role to read the relevant tables. |

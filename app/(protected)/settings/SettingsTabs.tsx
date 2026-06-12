@@ -10,7 +10,9 @@ import {
   Settings as SettingsIcon,
   Tag,
   Hash,
-  ArrowRight
+  ArrowRight,
+  Pencil,
+  Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,7 +34,32 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { addRole, addVillage, addKilai, addWard } from './actions'
+import {
+  addRole,
+  addVillage,
+  addKilai,
+  addWard,
+  updateRole,
+  updateVillage,
+  updateKilai,
+  updateWard,
+  deleteRole,
+  deleteVillage,
+  deleteKilai,
+  deleteWard,
+} from './actions'
+
+type MasterType = 'role' | 'village' | 'kilai' | 'ward'
+
+type EditTarget = {
+  type: MasterType
+  item: any
+} | null
+
+type DeleteTarget = {
+  type: MasterType
+  item: any
+} | null
 
 interface SettingsTabsProps {
   roles: any[]
@@ -74,6 +101,29 @@ export default function SettingsTabs({
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [editTarget, setEditTarget] = useState<EditTarget>(null)
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null)
+  const [editForm, setEditForm] = useState<Record<string, any>>({})
+
+  const openEditDialog = (type: MasterType, item: any) => {
+    setError(null)
+    setEditTarget({ type, item })
+    setEditForm({
+      code: item.code || '',
+      name: item.name || '',
+      name_ta: item.name_ta || '',
+      description: item.description || '',
+      is_active: item.is_active ?? true,
+      village_id: item.village_id || villages[0]?.id || '',
+      kilai_id: item.kilai_id || kilais[0]?.id || '',
+      number: item.number || 1,
+    })
+  }
+
+  const openDeleteDialog = (type: MasterType, item: any) => {
+    setError(null)
+    setDeleteTarget({ type, item })
+  }
 
   const handleAddRole = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -202,6 +252,133 @@ export default function SettingsTabs({
       setError(err?.message || 'Something went wrong.')
       setIsLoading(false)
     }
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editTarget) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      let res: { error?: string; success?: boolean } | undefined
+
+      if (editTarget.type === 'role') {
+        if (!editForm.name || !editForm.code) {
+          setError('Please provide role code and name.')
+          setIsLoading(false)
+          return
+        }
+
+        res = await updateRole(editTarget.item.id, {
+          code: editForm.code,
+          name: editForm.name,
+          name_ta: editForm.name_ta,
+          description: editForm.description,
+          is_active: Boolean(editForm.is_active),
+        })
+      }
+
+      if (editTarget.type === 'village') {
+        if (!editForm.name) {
+          setError('Please provide village name.')
+          setIsLoading(false)
+          return
+        }
+
+        res = await updateVillage(editTarget.item.id, {
+          name: editForm.name,
+          name_ta: editForm.name_ta,
+          panchayatId,
+        })
+      }
+
+      if (editTarget.type === 'kilai') {
+        if (!editForm.name || !editForm.village_id) {
+          setError('Please provide kilai name and village.')
+          setIsLoading(false)
+          return
+        }
+
+        res = await updateKilai(editTarget.item.id, {
+          name: editForm.name,
+          name_ta: editForm.name_ta,
+          villageId: editForm.village_id,
+        })
+      }
+
+      if (editTarget.type === 'ward') {
+        if (!editForm.number || !editForm.kilai_id) {
+          setError('Please provide ward number and kilai.')
+          setIsLoading(false)
+          return
+        }
+
+        res = await updateWard(editTarget.item.id, {
+          number: Number(editForm.number),
+          name: editForm.name,
+          name_ta: editForm.name_ta,
+          kilaiId: editForm.kilai_id,
+        })
+      }
+
+      if (res?.error) {
+        setError(res.error)
+      } else {
+        setEditTarget(null)
+        setEditForm({})
+        router.refresh()
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Unable to update master data.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      let res: { error?: string; success?: boolean } | undefined
+
+      if (deleteTarget.type === 'role') {
+        res = await deleteRole(deleteTarget.item.id)
+      }
+
+      if (deleteTarget.type === 'village') {
+        res = await deleteVillage(deleteTarget.item.id)
+      }
+
+      if (deleteTarget.type === 'kilai') {
+        res = await deleteKilai(deleteTarget.item.id)
+      }
+
+      if (deleteTarget.type === 'ward') {
+        res = await deleteWard(deleteTarget.item.id)
+      }
+
+      if (res?.error) {
+        setError(res.error)
+      } else {
+        setDeleteTarget(null)
+        router.refresh()
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Unable to delete master data.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const masterLabel = (target: EditTarget | DeleteTarget) => {
+    if (!target) return 'item'
+    if (target.type === 'ward') return `Ward ${target.item.number}`
+    return target.item.name || target.item.code || 'item'
   }
 
   return (
@@ -341,6 +518,7 @@ export default function SettingsTabs({
                   <TableHead className="text-slate-400 font-bold uppercase tracking-wider text-xs">Role Title</TableHead>
                   <TableHead className="text-slate-400 font-bold uppercase tracking-wider text-xs">Tamil Label</TableHead>
                   <TableHead className="text-slate-400 font-bold uppercase tracking-wider text-xs">Description</TableHead>
+                  <TableHead className="text-slate-400 font-bold uppercase tracking-wider text-xs text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -350,6 +528,31 @@ export default function SettingsTabs({
                     <TableCell className="font-semibold text-white">{role.name}</TableCell>
                     <TableCell className="text-slate-300">{role.name_ta || '-'}</TableCell>
                     <TableCell className="text-slate-400 text-xs">{role.description || '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          title="Edit role"
+                          onClick={() => openEditDialog('role', role)}
+                          className="text-slate-400 hover:text-white"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          title="Delete role"
+                          onClick={() => openDeleteDialog('role', role)}
+                          className="text-red-400 hover:text-red-300"
+                          disabled={role.code === 'super_admin'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -420,7 +623,29 @@ export default function SettingsTabs({
                     <p className="font-semibold text-white">{v.name}</p>
                     <p className="text-[10px] text-slate-500 font-medium">{v.name_ta || '-'}</p>
                   </div>
-                  <Tag className="w-3.5 h-3.5 text-slate-700" />
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      title="Edit village"
+                      onClick={() => openEditDialog('village', v)}
+                      className="text-slate-500 hover:text-white"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      title="Delete village"
+                      onClick={() => openDeleteDialog('village', v)}
+                      className="text-red-500 hover:text-red-300"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                    <Tag className="w-3.5 h-3.5 text-slate-700" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -499,7 +724,29 @@ export default function SettingsTabs({
                 <div key={k.id} className="p-2.5 bg-slate-950/40 border border-slate-900 rounded-lg flex flex-col justify-between text-sm">
                   <div className="flex justify-between items-start">
                     <p className="font-semibold text-white">{k.name}</p>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-700 mt-1 shrink-0" />
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        title="Edit kilai"
+                        onClick={() => openEditDialog('kilai', k)}
+                        className="text-slate-500 hover:text-white"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        title="Delete kilai"
+                        onClick={() => openDeleteDialog('kilai', k)}
+                        className="text-red-500 hover:text-red-300"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+                    </div>
                   </div>
                   <p className="text-[10px] text-slate-500 font-medium">{k.name_ta || '-'}</p>
                   <p className="text-[9px] text-amber-500/60 font-semibold uppercase tracking-wider mt-1.5">
@@ -574,7 +821,29 @@ export default function SettingsTabs({
                 <div key={w.id} className="p-2.5 bg-slate-950/40 border border-slate-900 rounded-lg flex flex-col justify-between text-sm">
                   <div className="flex justify-between items-center">
                     <p className="font-semibold text-white">Ward {w.number}</p>
-                    <Hash className="w-3.5 h-3.5 text-slate-700" />
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        title="Edit ward"
+                        onClick={() => openEditDialog('ward', w)}
+                        className="text-slate-500 hover:text-white"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        title="Delete ward"
+                        onClick={() => openDeleteDialog('ward', w)}
+                        className="text-red-500 hover:text-red-300"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                      <Hash className="w-3.5 h-3.5 text-slate-700" />
+                    </div>
                   </div>
                   <p className="text-[10px] text-slate-500 font-medium">Name: {w.name}</p>
                   <p className="text-[9px] text-amber-500/60 font-semibold uppercase tracking-wider mt-1.5">
@@ -586,6 +855,218 @@ export default function SettingsTabs({
           </div>
         </div>
       )}
+
+      <Dialog open={Boolean(editTarget)} onOpenChange={(open) => !open && setEditTarget(null)}>
+        <DialogContent className="bg-slate-900 border-slate-800 text-slate-100">
+          <DialogHeader>
+            <DialogTitle className="text-white font-extrabold text-xl">Edit {editTarget?.type}</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Update this master data record.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleEditSubmit} className="space-y-4 py-2">
+            {editTarget?.type === 'role' && (
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Role Code *</Label>
+                  <Input
+                    value={editForm.code || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, code: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Role Name *</Label>
+                  <Input
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Tamil Label</Label>
+                  <Input
+                    value={editForm.name_ta || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name_ta: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Description</Label>
+                  <Input
+                    value={editForm.description || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                  />
+                </div>
+
+                <label className="flex items-center gap-2 text-sm text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(editForm.is_active)}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, is_active: e.target.checked }))}
+                    className="h-4 w-4 rounded border-slate-700 bg-slate-950"
+                  />
+                  Active role
+                </label>
+              </>
+            )}
+
+            {editTarget?.type === 'village' && (
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Village Name *</Label>
+                  <Input
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Tamil Label</Label>
+                  <Input
+                    value={editForm.name_ta || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name_ta: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                  />
+                </div>
+              </>
+            )}
+
+            {editTarget?.type === 'kilai' && (
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Parent Village *</Label>
+                  <select
+                    value={editForm.village_id || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, village_id: e.target.value }))}
+                    className="w-full h-9 px-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 text-sm focus:border-amber-500 focus:outline-none"
+                    required
+                  >
+                    {villages.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Kilai Name *</Label>
+                  <Input
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Tamil Label</Label>
+                  <Input
+                    value={editForm.name_ta || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name_ta: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                  />
+                </div>
+              </>
+            )}
+
+            {editTarget?.type === 'ward' && (
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Parent Kilai *</Label>
+                  <select
+                    value={editForm.kilai_id || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, kilai_id: e.target.value }))}
+                    className="w-full h-9 px-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 text-sm focus:border-amber-500 focus:outline-none"
+                    required
+                  >
+                    {kilais.map((k) => (
+                      <option key={k.id} value={k.id}>
+                        {k.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Ward Number *</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={editForm.number || 1}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, number: Number(e.target.value) }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Ward Name</Label>
+                  <Input
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-slate-300 font-bold text-xs uppercase">Tamil Label</Label>
+                  <Input
+                    value={editForm.name_ta || ''}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name_ta: e.target.value }))}
+                    className="bg-slate-950 border-slate-800 text-slate-100 h-9"
+                  />
+                </div>
+              </>
+            )}
+
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="ghost" onClick={() => setEditTarget(null)} className="text-slate-400 hover:text-white">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-red-600 to-amber-500 text-white font-bold">
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="bg-slate-900 border-slate-800 text-slate-100">
+          <DialogHeader>
+            <DialogTitle className="text-white font-extrabold text-xl">Delete {deleteTarget?.type}</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              This will permanently delete {masterLabel(deleteTarget)}. Related records may also be affected by database relationships.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="pt-2">
+            <Button type="button" variant="ghost" onClick={() => setDeleteTarget(null)} className="text-slate-400 hover:text-white">
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isLoading}
+              onClick={handleDeleteConfirm}
+              className="font-bold"
+            >
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
