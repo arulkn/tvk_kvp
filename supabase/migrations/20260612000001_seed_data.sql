@@ -137,52 +137,52 @@ END $$;
 -- -------------------------------------------------------------
 DO $$
 DECLARE
-    cuddalore_id UUID;
-    panruti_union_id UUID;
-    melpat_panc_id UUID;
-    melpat_vill_id UUID;
-    north_kilai_id UUID;
-    south_kilai_id UUID;
+    tiruvallur_id UUID;
+    gummidipoondi_union_id UUID;
+    kavaraipettai_panc_id UUID;
+    kavaraipettai_vill_id UUID;
+    east_kilai_id UUID;
+    west_kilai_id UUID;
     ward1_id UUID;
     ward2_id UUID;
 BEGIN
     -- District
     INSERT INTO public.districts (name, name_ta) 
-    VALUES ('Cuddalore', 'கடலூர்')
-    RETURNING id INTO cuddalore_id;
+    VALUES ('Tiruvallur', 'திருவள்ளூர்')
+    RETURNING id INTO tiruvallur_id;
 
     -- Union
     INSERT INTO public.unions (district_id, name, name_ta) 
-    VALUES (cuddalore_id, 'Panruti', 'பண்ருட்டி')
-    RETURNING id INTO panruti_union_id;
+    VALUES (tiruvallur_id, 'Gummidipoondi', 'கும்மிடிப்பூண்டி')
+    RETURNING id INTO gummidipoondi_union_id;
 
     -- Panchayat
     INSERT INTO public.panchayats (union_id, name, name_ta) 
-    VALUES (panruti_union_id, 'Melpattampakkam', 'மேல்பட்டாம்பாக்கம்')
-    RETURNING id INTO melpat_panc_id;
+    VALUES (gummidipoondi_union_id, 'Kavaraipettai', 'கவரப்பேட்டை')
+    RETURNING id INTO kavaraipettai_panc_id;
 
     -- Village
     INSERT INTO public.villages (panchayat_id, name, name_ta) 
-    VALUES (melpat_panc_id, 'Melpattampakkam Village', 'மேல்பட்டாம்பாக்கம் கிராமம்')
-    RETURNING id INTO melpat_vill_id;
+    VALUES (kavaraipettai_panc_id, 'Kavaraipettai Village', 'கவரப்பேட்டை கிராமம்')
+    RETURNING id INTO kavaraipettai_vill_id;
 
     -- Kilais (Neighborhood Units)
     INSERT INTO public.kilais (village_id, name, name_ta) 
     VALUES 
-    (melpat_vill_id, 'Melpattampakkam North Kilai', 'மேல்பட்டாம்பாக்கம் வடக்கு கிளை') RETURNING id INTO north_kilai_id;
+    (kavaraipettai_vill_id, 'Kavaraipettai East Kilai', 'கவரப்பேட்டை கிழக்கு கிளை') RETURNING id INTO east_kilai_id;
     
     INSERT INTO public.kilais (village_id, name, name_ta) 
     VALUES 
-    (melpat_vill_id, 'Melpattampakkam South Kilai', 'மேல்பட்டாம்பாக்கம் தெற்கு கிளை') RETURNING id INTO south_kilai_id;
+    (kavaraipettai_vill_id, 'Kavaraipettai West Kilai', 'கவரப்பேட்டை மேற்கு கிளை') RETURNING id INTO west_kilai_id;
 
     -- Wards
     INSERT INTO public.wards (kilai_id, number, name, name_ta) 
     VALUES 
-    (north_kilai_id, 1, 'Ward 1', 'வார்டு 1') RETURNING id INTO ward1_id;
+    (east_kilai_id, 1, 'Ward 1', 'வார்டு 1') RETURNING id INTO ward1_id;
     
     INSERT INTO public.wards (kilai_id, number, name, name_ta) 
     VALUES 
-    (south_kilai_id, 2, 'Ward 2', 'வார்டு 2') RETURNING id INTO ward2_id;
+    (west_kilai_id, 2, 'Ward 2', 'வார்டு 2') RETURNING id INTO ward2_id;
 END $$;
 
 -- -------------------------------------------------------------

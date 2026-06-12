@@ -65,7 +65,7 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
             </div>
             <div>
               <h1 className="font-extrabold text-lg text-slate-950 uppercase tracking-tight">Tamizhaga Vettri Kazhagam</h1>
-              <span className="block text-[9px] text-amber-600 font-bold tracking-widest uppercase">Melpattampakkam Panchayat</span>
+              <span className="block text-[9px] text-amber-600 font-bold tracking-widest uppercase">Kavaraipettai Panchayat</span>
             </div>
           </div>
           <div className="text-right">

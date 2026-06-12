@@ -36,7 +36,7 @@ export async function createMember(data: z.infer<typeof memberSchema>) {
 
   // Generate customized membership ID
   const randomNum = Math.floor(100000 + Math.random() * 900000)
-  const membership_id = `TVK-MEL-${randomNum}`
+  const membership_id = `TVK-KAV-${randomNum}`
 
   const { error } = await supabase.from('members').insert({
     ...data,

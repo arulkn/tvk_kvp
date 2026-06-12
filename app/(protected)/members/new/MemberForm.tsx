@@ -267,7 +267,7 @@ export default function MemberForm({
           <Label className="text-slate-300 text-xs font-bold uppercase tracking-wider">Residential Address</Label>
           <Input
             {...register('address')}
-            placeholder="e.g. 12, North Street, Melpattampakkam"
+            placeholder="e.g. 12, North Street, Kavaraipettai"
             className="bg-slate-950/40 border-slate-800 text-slate-100"
           />
           {errors.address && <p className="text-xs text-red-400 mt-1">{errors.address.message}</p>}

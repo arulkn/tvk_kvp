@@ -137,7 +137,7 @@ export default async function ProtectedLayout({
             </Button>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-medium bg-slate-900/40 border border-slate-800/80 px-3 py-1.5 rounded-full">
               <MapPin className="w-3.5 h-3.5 text-amber-500" />
-              <span>Melpattampakkam Panchayat</span>
+              <span>Kavaraipettai Panchayat</span>
             </div>
           </div>
 

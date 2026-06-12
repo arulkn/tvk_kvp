@@ -242,15 +242,15 @@ export default async function DashboardPage() {
             <div className="space-y-2.5 text-sm text-slate-400">
               <div className="flex justify-between items-center py-1.5 border-b border-slate-900/55">
                 <span>District</span>
-                <span className="text-white font-semibold">Cuddalore</span>
+                <span className="text-white font-semibold">Tiruvallur</span>
               </div>
               <div className="flex justify-between items-center py-1.5 border-b border-slate-900/55">
                 <span>Union / Block</span>
-                <span className="text-white font-semibold">Panruti</span>
+                <span className="text-white font-semibold">Gummidipoondi</span>
               </div>
               <div className="flex justify-between items-center py-1.5 border-b border-slate-900/55">
                 <span>Panchayat</span>
-                <span className="text-white font-semibold">Melpattampakkam</span>
+                <span className="text-white font-semibold">Kavaraipettai</span>
               </div>
               <div className="flex justify-between items-center py-1.5">
                 <span>Wards / Kilais</span>
