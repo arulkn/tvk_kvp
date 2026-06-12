@@ -313,15 +313,15 @@ Maintain complete cadre/member records with search, filtering, import, export, a
 
 ### Tasks
 
-- [ ] Create members list page.
-- [ ] Create member profile page.
-- [ ] Create member create/edit form.
+- [x] Create members list page.
+- [x] Create member profile page.
+- [x] Create member create/edit form.
 - [ ] Add member photo upload.
-- [ ] Add search by name, mobile, membership ID.
-- [ ] Add filters for village, Panchayat, Kilai, Ward, role, gender, blood group, status.
+- [x] Add search by name, mobile, membership ID.
+- [x] Add filters for village, Panchayat, Kilai, Ward, role, gender, blood group, status.
 - [ ] Add member activation/deactivation.
-- [ ] Add member transfer between Kilai/Ward.
-- [ ] Add transfer history.
+- [x] Add member transfer between Kilai/Ward.
+- [x] Add transfer history.
 - [ ] Add bulk Excel import.
 - [ ] Add validation and preview for imports.
 - [ ] Add Excel export.
@@ -342,22 +342,22 @@ Manage party activities, registrations, attendance, photos, and reports.
 
 ### Tasks
 
-- [ ] Create events list page.
-- [ ] Create event detail page.
-- [ ] Create event create/edit form.
-- [ ] Add event type support:
-  - [ ] Public Meetings
-  - [ ] Booth Meetings
-  - [ ] Village Meetings
-  - [ ] Awareness Programs
-  - [ ] Membership Drives
-  - [ ] Welfare Activities
-  - [ ] Blood Donation Camps
-  - [ ] Annadhanam
-  - [ ] Protests
-  - [ ] Campaign Events
-- [ ] Add event registration.
-- [ ] Add attendance tracking.
+- [x] Create events list page.
+- [x] Create event detail page.
+- [x] Create event create/edit form.
+- [x] Add event type support:
+  - [x] Public Meetings
+  - [x] Booth Meetings
+  - [x] Village Meetings
+  - [x] Awareness Programs
+  - [x] Membership Drives
+  - [x] Welfare Activities
+  - [x] Blood Donation Camps
+  - [x] Annadhanam
+  - [x] Protests
+  - [x] Campaign Events
+- [x] Add event registration.
+- [x] Add attendance tracking.
 - [ ] Add photo uploads.
 - [ ] Add event reports.
 - [ ] Add reminder notifications.
@@ -450,18 +450,18 @@ Track monthly cadre contributions with dues, receipts, and reports.
 ### Tasks
 
 - [ ] Create collection setup page.
-- [ ] Create monthly collection dashboard.
-- [ ] Create member-wise dues page.
-- [ ] Create payment entry form.
-- [ ] Generate receipts.
-- [ ] Add payment history.
+- [x] Create monthly collection dashboard.
+- [x] Create member-wise dues page.
+- [x] Create payment entry form.
+- [x] Generate receipts.
+- [x] Add payment history.
 - [ ] Add collector assignment.
-- [ ] Add pending dues view.
+- [x] Add pending dues view.
 - [ ] Add village-wise reports.
 - [ ] Add ward-wise reports.
 - [ ] Add monthly trends chart.
-- [ ] Add collection percentage widget.
-- [ ] Add outstanding dues widget.
+- [x] Add collection percentage widget.
+- [x] Add outstanding dues widget.
 - [ ] Add audit logs for collection changes.
 
 ### Acceptance Criteria
