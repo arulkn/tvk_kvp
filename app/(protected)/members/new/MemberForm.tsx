@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createMember } from '../actions'
+import { createMember, updateMember } from '../actions'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -44,6 +44,7 @@ interface MemberFormProps {
   kilais: any[]
   wards: any[]
   roles: any[]
+  member?: any
 }
 
 export default function MemberForm({
@@ -54,6 +55,7 @@ export default function MemberForm({
   kilais,
   wards,
   roles,
+  member,
 }: MemberFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +66,8 @@ export default function MemberForm({
   const defaultUnion = unions[0]?.id || ''
   const defaultPanchayat = panchayats[0]?.id || ''
 
+  const isEdit = !!member
+
   const {
     register,
     handleSubmit,
@@ -72,23 +76,23 @@ export default function MemberForm({
   } = useForm<MemberFormValues>({
     resolver: zodResolver(memberSchema),
     defaultValues: {
-      name: '',
-      mobile_number: '',
-      alternate_number: '',
-      address: '',
-      district_id: defaultDistrict,
-      union_id: defaultUnion,
-      panchayat_id: defaultPanchayat,
-      village_id: villages[0]?.id || '',
-      kilai_id: kilais[0]?.id || '',
-      ward_id: wards[0]?.id || '',
-      date_of_birth: '',
-      occupation: '',
-      joining_date: new Date().toISOString().split('T')[0],
-      blood_group: 'B+',
-      gender: 'Male',
-      role_id: roles.find((r) => r.code === 'volunteer')?.id || roles[0]?.id || '',
-      status: 'active',
+      name: member?.name || '',
+      mobile_number: member?.mobile_number || '',
+      alternate_number: member?.alternate_number || '',
+      address: member?.address || '',
+      district_id: member?.district_id || defaultDistrict,
+      union_id: member?.union_id || defaultUnion,
+      panchayat_id: member?.panchayat_id || defaultPanchayat,
+      village_id: member?.village_id || villages[0]?.id || '',
+      kilai_id: member?.kilai_id || kilais[0]?.id || '',
+      ward_id: member?.ward_id || wards[0]?.id || '',
+      date_of_birth: member?.date_of_birth || '',
+      occupation: member?.occupation || '',
+      joining_date: member?.joining_date || new Date().toISOString().split('T')[0],
+      blood_group: member?.blood_group || 'B+',
+      gender: member?.gender || 'Male',
+      role_id: member?.role_id || roles.find((r) => r.code === 'volunteer')?.id || roles[0]?.id || '',
+      status: member?.status || 'active',
     },
   })
 
@@ -96,12 +100,18 @@ export default function MemberForm({
     setIsLoading(true)
     setError(null)
     try {
-      const res = await createMember(values)
+      let res
+      if (isEdit) {
+        res = await updateMember(member.id, values)
+      } else {
+        res = await createMember(values)
+      }
+
       if (res && res.error) {
         setError(res.error)
         setIsLoading(false)
       } else {
-        router.push('/members')
+        router.push(isEdit ? `/members/${member.id}` : '/members')
         router.refresh()
       }
     } catch (err: any) {
@@ -115,7 +125,7 @@ export default function MemberForm({
       {/* Header */}
       <div className="flex items-center gap-4 border-b border-slate-900 pb-4">
         <Link
-          href="/members"
+          href={isEdit ? `/members/${member.id}` : "/members"}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'icon' }),
             "text-slate-400 hover:text-white rounded-full"
@@ -124,8 +134,12 @@ export default function MemberForm({
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Register New Member</h1>
-          <p className="text-slate-400 text-xs">Add a new cadre profile to the local Panchayat structure.</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            {isEdit ? 'Edit Member Profile' : 'Register New Member'}
+          </h1>
+          <p className="text-slate-400 text-xs">
+            {isEdit ? 'Update existing cadre details and placements.' : 'Add a new cadre profile to the local Panchayat structure.'}
+          </p>
         </div>
       </div>
 
@@ -327,7 +341,7 @@ export default function MemberForm({
         {/* Submit */}
         <div className="flex justify-end gap-3 border-t border-slate-900 pt-6">
           <Link
-            href="/members"
+            href={isEdit ? `/members/${member.id}` : "/members"}
             className={cn(
               buttonVariants({ variant: 'ghost' }),
               "text-slate-400 hover:text-white border border-slate-900"
@@ -342,11 +356,11 @@ export default function MemberForm({
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving Member...
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {isEdit ? 'Updating Profile...' : 'Saving Member...'}
               </>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" /> Save Member
+                <Save className="w-4 h-4 mr-2" /> {isEdit ? 'Update Profile' : 'Save Member'}
               </>
             )}
           </Button>

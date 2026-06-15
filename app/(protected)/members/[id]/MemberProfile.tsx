@@ -15,7 +15,8 @@ import {
   User,
   History,
   Send,
-  Loader2
+  Loader2,
+  Pencil
 } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -110,9 +111,21 @@ export default function MemberProfile({
           </div>
         </div>
 
-        {/* Transfer Cadre Action */}
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger className="inline-flex shrink-0 items-center justify-center rounded-lg text-sm font-bold whitespace-nowrap transition-all outline-none select-none h-8 gap-1.5 px-2.5 bg-amber-500 text-slate-950 hover:bg-amber-400 cursor-pointer shadow-md">
+        <div className="flex items-center gap-2">
+          {/* Edit Profile Action */}
+          <Link
+            href={`/members/${member.id}/edit`}
+            className={cn(
+              buttonVariants({ variant: 'ghost' }),
+              "border border-slate-800 text-slate-300 hover:text-white rounded-lg h-8 px-3 text-xs font-bold flex items-center gap-1.5"
+            )}
+          >
+            <Pencil className="w-3.5 h-3.5" /> Edit Profile
+          </Link>
+
+          {/* Transfer Cadre Action */}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger className="inline-flex shrink-0 items-center justify-center rounded-lg text-xs font-bold whitespace-nowrap transition-all outline-none select-none h-8 gap-1.5 px-3 bg-amber-500 text-slate-950 hover:bg-amber-400 cursor-pointer shadow-md">
             <GitBranch className="w-4 h-4" /> Transfer Cadre
           </DialogTrigger>
           <DialogContent className="bg-slate-900 border-slate-800 text-slate-100">
@@ -194,6 +207,7 @@ export default function MemberProfile({
           </DialogContent>
         </Dialog>
       </div>
+    </div>
 
       {/* Main Profile Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
