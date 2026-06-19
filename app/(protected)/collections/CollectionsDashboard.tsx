@@ -10,7 +10,6 @@ import {
   AlertCircle,
   Plus,
   Loader2,
-  FileText,
   TrendingUp,
   Clock,
   Printer
@@ -39,9 +38,27 @@ import {
 } from '@/components/ui/table'
 import { recordContribution } from './actions'
 
+interface Member {
+  id: string
+  name: string
+  membership_id: string
+  status: string
+  kilais?: { name: string } | null
+  wards?: { number: number | string } | null
+}
+
+interface Contribution {
+  id: string
+  member_id: string
+  amount: number | string
+  month: string
+  payment_date: string
+  remarks?: string | null
+}
+
 interface CollectionsDashboardProps {
-  members: any[]
-  contributions: any[]
+  members: Member[]
+  contributions: Contribution[]
   defaultSanthaaAmount?: number
 }
 
@@ -64,9 +81,55 @@ export default function CollectionsDashboard({
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
 
+  // Quick Pay State
+  const [quickPayOpen, setQuickPayOpen] = useState(false)
+  const [memberToQuickPay, setMemberToQuickPay] = useState<Member | null>(null)
+  const [quickPayLoading, setQuickPayLoading] = useState(false)
+  const [quickPayError, setQuickPayError] = useState<string | null>(null)
+
+  // Current calendar month helper (YYYY-MM)
+  const currentCalendarMonth = (() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  })()
+
+  const isCurrentMonth = month === currentCalendarMonth
+
+  const handleQuickPayConfirm = async () => {
+    if (!memberToQuickPay) return
+
+    setQuickPayLoading(true)
+    setQuickPayError(null)
+
+    try {
+      const todayDate = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD local format
+      const res = await recordContribution({
+        memberId: memberToQuickPay.id,
+        amount: defaultSanthaaAmount,
+        month: currentCalendarMonth,
+        paymentDate: todayDate,
+        remarks: 'Quick Paid',
+      })
+
+      if (res && res.error) {
+        setQuickPayError(res.error)
+        setQuickPayLoading(false)
+      } else {
+        setQuickPayOpen(false)
+        setMemberToQuickPay(null)
+        setQuickPayLoading(false)
+        router.refresh()
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong.'
+      setQuickPayError(msg)
+      setQuickPayLoading(false)
+    }
+  }
+
   // Map contributions by member_id for the selected month YYYY-MM
   const currentMonthFilter = `${month}-01`
-  const paymentsMapping: { [memberId: string]: any } = {}
+  const paymentsMapping: { [memberId: string]: Contribution } = {}
   contributions
     .filter((c) => c.month === currentMonthFilter)
     .forEach((c) => {
@@ -111,8 +174,9 @@ export default function CollectionsDashboard({
         setIsLoading(false)
         router.refresh()
       }
-    } catch (err: any) {
-      setError(err?.message || 'Something went wrong.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong.'
+      setError(msg)
       setIsLoading(false)
     }
   }
@@ -232,6 +296,85 @@ export default function CollectionsDashboard({
                 </Button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Quick Pay Confirmation Dialog */}
+        <Dialog open={quickPayOpen} onOpenChange={(open) => {
+          if (!open) {
+            setQuickPayOpen(false)
+            setMemberToQuickPay(null)
+            setQuickPayError(null)
+          }
+        }}>
+          <DialogContent className="bg-slate-900 border-slate-800 text-slate-100 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white font-extrabold text-xl flex items-center gap-2">
+                <Coins className="w-5 h-5 text-emerald-500" /> Confirm Quick Payment
+              </DialogTitle>
+              <DialogDescription className="text-slate-400">
+                Are you sure you want to mark this member as paid for the current month?
+              </DialogDescription>
+            </DialogHeader>
+
+            {quickPayError && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-2.5 rounded-lg text-xs">
+                {quickPayError}
+              </div>
+            )}
+
+            {memberToQuickPay && (
+              <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-4 space-y-2.5 my-2">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Member Name:</span>
+                  <span className="font-semibold text-white">{memberToQuickPay.name}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Membership ID:</span>
+                  <span className="font-mono font-bold text-amber-500">{memberToQuickPay.membership_id}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Month:</span>
+                  <span className="font-semibold text-white">
+                    {new Date(currentCalendarMonth + '-02').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Amount:</span>
+                  <span className="font-mono font-bold text-emerald-400">₹{defaultSanthaaAmount}</span>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="pt-2 gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={quickPayLoading}
+                onClick={() => {
+                  setQuickPayOpen(false)
+                  setMemberToQuickPay(null)
+                  setQuickPayError(null)
+                }}
+                className="text-slate-400 hover:text-white"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={quickPayLoading}
+                onClick={handleQuickPayConfirm}
+                className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold"
+              >
+                {quickPayLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Updating...
+                  </>
+                ) : (
+                  <>Confirm & Update Paid</>
+                )}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
@@ -370,17 +513,31 @@ export default function CollectionsDashboard({
                              <Printer className="w-3.5 h-3.5 mr-1" /> Print Receipt
                            </Link>
                         ) : (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setSelectedMember(member.id)
-                              setOpen(true)
-                            }}
-                            className="text-slate-500 hover:text-slate-300 hover:bg-slate-900"
-                          >
-                            Collect Dues
-                          </Button>
+                          <div className="flex justify-end items-center gap-2">
+                            {isCurrentMonth && (
+                              <Button
+                                size="sm"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1 h-8 px-3 rounded-lg transition-colors cursor-pointer"
+                                onClick={() => {
+                                  setMemberToQuickPay(member)
+                                  setQuickPayOpen(true)
+                                }}
+                              >
+                                <CheckCircle className="w-3.5 h-3.5" /> Update Paid
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setSelectedMember(member.id)
+                                setOpen(true)
+                              }}
+                              className="text-slate-500 hover:text-slate-300 hover:bg-slate-900 h-8"
+                            >
+                              Collect Dues
+                            </Button>
+                          </div>
                         )}
                       </TableCell>
                     </TableRow>
